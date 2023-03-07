@@ -6,13 +6,17 @@
   import type IUser from "./interfaces/IUser";
   
   let usuario: IUser | null = null;
+  function definirUsuario(payload: CustomEvent<IUser| null>){
+    usuario = payload.detail
+    console.log(usuario)
+  }
 </script>
 
 <div class="app">
   <header>
     <Title />
     <div class="busca-usuario">
-      <Form bind:usuario={usuario}/>
+      <Form on:aoAlterarUsuario={definirUsuario}/>
     </div>
   </header>
   {#if usuario}

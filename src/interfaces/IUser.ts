@@ -1,3 +1,5 @@
+import type IRepositorio from "./IRepositorio";
+
 export default interface IUser {
     login: string;
     avatar_url: string;
@@ -5,4 +7,5 @@ export default interface IUser {
     repositorios_publicos: number;
     seguidores: number;
     nome:string;
+    repositorios_recentes: IRepositorio[]
 }

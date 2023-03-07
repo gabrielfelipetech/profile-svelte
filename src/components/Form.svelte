@@ -1,24 +1,27 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import type IUser from "../interfaces/IUser";
+    import { buscaRepositiorios, buscaUsuraio } from "../requisicoes";
+    import { montaUsuario } from "../utils/montaUsuario";
 
-
-    let valueSearch: String;
-    export let usuario : IUser| null
+    let valueSearch: string;
+    let statusError: null | number = null;
+    const dispatch = createEventDispatcher<{
+        aoAlterarUsuario: IUser | null;
+    }>();
     async function submit() {
-        const responseUser = await fetch(
-            `https://api.github.com/users/${valueSearch}`
-        );
-        const dataUser = await responseUser.json();
-        console.log(dataUser);
-        usuario = {
-            avatar_url: dataUser.avatar_url,
-            login: dataUser.login,
-            nome: dataUser.name,
-            perfil_url: dataUser.html_url,
-            repositorios_publicos: dataUser.public_repos,
-            seguidores: dataUser.followers,
-        };
-        valueSearch = ''
+        const responseUser = await buscaUsuraio(valueSearch)
+        const responseRepositories = await buscaRepositiorios(valueSearch)
+        statusError = 404;
+        dispatch('aoAlterarUsuario', null)
+        if (responseUser.ok && responseRepositories.ok) {
+            statusError = responseUser.status && responseRepositories.status;
+            const dataUser = await responseUser.json();
+            const dataRepositories = await responseRepositories.json()
+            console.log(dataRepositories)
+            dispatch("aoAlterarUsuario", montaUsuario(dataUser, dataRepositories));
+        }
+        valueSearch = "";
     }
 </script>
 
@@ -26,15 +29,30 @@
     <input
         type="text"
         class="input"
+        class:erro-input={statusError === 404}
         placeholder="pesquise aqui o usuario"
         bind:value={valueSearch}
     />
+    {#if statusError === 404}
+        <span class="erro">Usuario não encontrado</span>
+    {/if}
     <div class="botao-container">
         <button type="submit" class="botao">Buscar</button>
     </div>
 </form>
 
 <style>
+    .erro {
+        position: absolute;
+        bottom: -25px;
+        left: 0;
+        font-style: italic;
+        font-weight: normal;
+        font-size: 16px;
+        line-height: 19px;
+        z-index: -1;
+        color: #ff003e;
+    }
     .input {
         padding: 15px 25px;
         width: calc(100% - 8.75rem);
@@ -43,6 +61,9 @@
         border: 1px solid #2e80fa;
         box-shadow: 0px 17px 52px rgba(222, 231, 247, 0.4);
         outline: 0;
+    }
+    .erro-input {
+        border: 1px solid #ff003e;
     }
 
     .input::placeholder {
