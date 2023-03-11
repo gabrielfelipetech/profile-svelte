@@ -18,7 +18,6 @@
             statusError = responseUser.status && responseRepositories.status;
             const dataUser = await responseUser.json();
             const dataRepositories = await responseRepositories.json()
-            console.log(dataRepositories)
             dispatch("aoAlterarUsuario", montaUsuario(dataUser, dataRepositories));
         }
         valueSearch = "";

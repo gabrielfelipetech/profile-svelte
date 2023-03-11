@@ -8,7 +8,6 @@
   let usuario: IUser | null = null;
   function definirUsuario(payload: CustomEvent<IUser| null>){
     usuario = payload.detail
-    console.log(usuario)
   }
 </script>
 
